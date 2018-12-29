@@ -62,6 +62,7 @@
         <property name="mapperLocations" value="classpath*:mappers/*Mapper.xml"></property>
 
         <!-- 分页插件 -->
+        <!-- 
         <property name="plugins">
             <array>
                 <bean class="com.github.pagehelper.PageHelper">
@@ -73,6 +74,7 @@
                 </bean>
             </array>
         </property>
+         -->
 
     </bean>
 
