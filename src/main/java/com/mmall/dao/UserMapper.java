@@ -28,4 +28,13 @@ public interface UserMapper {
     
     //返回用户密保问题
     String selectSecurityQuestion(String username);
+    
+    //返回用户密保答案
+    String selectSecurityAnswer(@Param("username") String username, @Param("question") String question);
+    
+    //通过用户名查找用户
+    User selectByUsername(String username);
+    
+    //修改用户密码
+    int updatePassword(@Param("username")String username, @Param("newPassword")String newPassword);
 }

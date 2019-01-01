@@ -94,7 +94,33 @@ public class UserController {
 	 */
 	@RequestMapping(value="/getSecurityQuestion.do", method=RequestMethod.POST)
 	@ResponseBody
-	public ServerResponse<String> getSecurityQuestion(String username) {
+	public ServerResponse<String> getSecurityQuestion(String username) {	
 		return iUserService.getSecurityQuestion(username);
+	}
+	
+	/**
+	 * 校验用户密保答案
+	 * @param username
+	 * @param question
+	 * @param answer
+	 * @return
+	 */
+	@RequestMapping(value="/checkSecurityAnswer.do", method=RequestMethod.POST)
+	@ResponseBody
+	public ServerResponse<String> checkSecurityAnswer(String username, String question, String answer) {
+		return iUserService.checkSecurityAnswer(username, question, answer);
+	}
+	
+	/**
+	 * 修改密码
+	 * @param username
+	 * @param newPassword
+	 * @param userToken
+	 * @return
+	 */
+	@RequestMapping(value="/forgetRestPassword.do", method=RequestMethod.POST)
+	@ResponseBody
+	public ServerResponse<String> forgetRestPassword(String username, String newPassword, String userToken) {
+		return iUserService.forgetRestPassword(username, newPassword, userToken);
 	}
 }
