@@ -112,7 +112,7 @@ public class UserController {
 	}
 	
 	/**
-	 * 修改密码
+	 * 回答密保问题后重设密码
 	 * @param username
 	 * @param newPassword
 	 * @param userToken
@@ -122,5 +122,33 @@ public class UserController {
 	@ResponseBody
 	public ServerResponse<String> forgetRestPassword(String username, String newPassword, String userToken) {
 		return iUserService.forgetRestPassword(username, newPassword, userToken);
+	}
+	
+	/**
+	 * 登陆状态下重设密码
+	 */
+	@RequestMapping(value="/restPassword.do", method=RequestMethod.POST)
+	@ResponseBody
+	public ServerResponse<String> restPassword(HttpSession session, String oldPassword, String newPassword) {
+		User user = (User)session.getAttribute(Const.CURRENT_USER);
+		if(user == null)
+			return ServerResponse.createByErrorMsg("用户未登陆");
+		return iUserService.restPassword(user, oldPassword, newPassword);
+	}
+	
+	/**
+	 * 更新用户信息
+	 * @param session
+	 * @param userUpdate
+	 * @return
+	 */
+	@RequestMapping(value="/updateUserInfo.do", method=RequestMethod.POST)
+	@ResponseBody
+	public ServerResponse<User> updateUserInfo(HttpSession session, User updateUser) {
+		User user = (User)session.getAttribute(Const.CURRENT_USER);
+		if(user == null)
+			return ServerResponse.createByErrorMsg("用户未登陆");
+		updateUser.setId(user.getId());
+		return iUserService.updateUserInfo(updateUser);
 	}
 }

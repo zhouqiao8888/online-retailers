@@ -2,6 +2,7 @@ package com.mmall.service.impl;
 
 import java.util.UUID;
 
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,20 +61,17 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public ServerResponse<String> checkValid(String str, String type) {
-		boolean flag = false;
 		
-		if(StringUtils.isBlank(type))
-			return ServerResponse.createByErrorMsg("类型不能为空");
-		
-		if(!Const.USERNAME.equals(type) && !Const.EMAIL.equals(type))
-			return ServerResponse.createByErrorMsg("类型不存在");
+		if(StringUtils.isBlank(type) || StringUtils.isBlank(str))
+			return ServerResponse.createByErrorMsg("参数不能为空");
 		
 		if(Const.USERNAME.equals(type)) {
 			int res = userMapper.checkUsername(str);
 			if(res > 0) {
 				return ServerResponse.createByErrorMsg("用户名已存在");
 			}
-			flag = true;
+			return ServerResponse.createBySuccessMsg("校验成功");			
+
 		}
 			
 		if(Const.EMAIL.equals(type)) {
@@ -81,13 +79,11 @@ public class UserServiceImpl implements IUserService {
 			if(res > 0) {
 				return ServerResponse.createByErrorMsg("email已存在");
 			}	
-			flag = true;
-		}		
+			return ServerResponse.createBySuccessMsg("校验成功");			
+
+		}				
+		return ServerResponse.createByErrorMsg("校验失败");
 		
-		if(!flag) 
-			return ServerResponse.createByErrorMsg("校验失败");
-		
-		return ServerResponse.createBySuccessMsg("校验成功");			
 	}
 
 	@Override
@@ -137,12 +133,50 @@ public class UserServiceImpl implements IUserService {
 		String token = TokenCache.TOKENCACHE + username;
 		if(StringUtils.equals(token, userToken)) {
 			String md5Password = MD5Util.MD5EncodeUtf8(newPassword);
-			int resCount = userMapper.updatePassword(username, md5Password);
+			int resCount = userMapper.updatePasswordByUsername(username, md5Password);
 			if(resCount > 0) {
 				return ServerResponse.createBySuccessMsg("密码修改成功");
 			}
 		}
 		return ServerResponse.createByErrorMsg("密码修改失败");
+	}
+
+	@Override
+	public ServerResponse<String> restPassword(User user, String oldPassword, String newPassword) {
+		//防止横向越权
+		String md5Password_old = MD5Util.MD5EncodeUtf8(oldPassword);
+		int resCount = userMapper.checkUserPassword(md5Password_old, user.getId());
+		if(resCount == 0)
+			return ServerResponse.createByErrorMsg("用户密码错误");
+		
+		if(oldPassword.equals(newPassword)) 
+			return ServerResponse.createByErrorMsg("新密码不能与旧密码一致");
+		
+		String md5Password_new = MD5Util.MD5EncodeUtf8(newPassword);
+		resCount = userMapper.updatePasswordByUsername(user.getUsername(), md5Password_new);
+		if(resCount > 0) {
+			return ServerResponse.createBySuccessMsg("新密码设置成功");
+		}
+		return ServerResponse.createByErrorMsg("新密码设置失败");
+ 
+	}
+
+	@Override
+	public ServerResponse<User> updateUserInfo(User updateUser) {
+		//用户名不能被更新
+		//校验email：如果email已经存在，且不是当前用户的email
+		int resCount = userMapper.checkToUpdateEmail(updateUser.getEmail(), updateUser.getId());
+		if(resCount > 0) {
+			return ServerResponse.createByErrorMsg("email已存在，请更换email再尝试更新");
+		}	
+		
+		resCount = userMapper.updateByPrimaryKeySelective(updateUser);
+		if(resCount > 0) {
+			User retUser = userMapper.selectByPrimaryKey(updateUser.getId());
+			retUser.setPassword("");
+			return ServerResponse.createBySuccessMsgAndData("用户信息更新成功", retUser);
+		}
+		return ServerResponse.createByErrorMsg("用户信息更新失败");
 	}
 
 }

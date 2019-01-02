@@ -36,5 +36,11 @@ public interface UserMapper {
     User selectByUsername(String username);
     
     //修改用户密码
-    int updatePassword(@Param("username")String username, @Param("newPassword")String newPassword);
+    int updatePasswordByUsername(@Param("username") String username, @Param("newPassword") String newPassword);
+    
+    //校验用户密码
+    int checkUserPassword(@Param("password") String password, @Param("id") int id);
+    
+    //校验待更新的email是否已经存在
+    int checkToUpdateEmail(@Param("email") String eamil, @Param("id") int id);
 }
