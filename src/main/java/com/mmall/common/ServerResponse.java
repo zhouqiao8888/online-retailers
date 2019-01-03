@@ -116,12 +116,12 @@ public class ServerResponse<T> implements Serializable {
 	
 	/**
 	 * 返回失败响应：自定义：错误码，提示信息
-	 * @param errorCode
+	 * @param code
 	 * @param errorMsg
 	 * @return
 	 */
-	public static <T> ServerResponse<T> createByErrorCodeMsg(int errorCode, String errorMsg) {
-		return new ServerResponse<T>(errorCode, errorMsg);
+	public static <T> ServerResponse<T> createByErrorCodeMsg(int code, String errorMsg) {
+		return new ServerResponse<T>(code, errorMsg);
 	}
 	
 }

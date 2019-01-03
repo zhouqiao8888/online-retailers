@@ -1,5 +1,6 @@
 package com.mmall.service;
 
+
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 
@@ -20,4 +21,8 @@ public interface IUserService {
 	ServerResponse<String> restPassword(User user, String oldPassword, String newPassword);
 	
 	ServerResponse<User> updateUserInfo(User updateUser);
+	
+	ServerResponse<User> getUserInfoById(int id);
+	
+	ServerResponse<String> checkAdminRole(User user);
 }

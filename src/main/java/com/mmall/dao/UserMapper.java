@@ -29,8 +29,9 @@ public interface UserMapper {
     //返回用户密保问题
     String selectSecurityQuestion(String username);
     
-    //返回用户密保答案
-    String selectSecurityAnswer(@Param("username") String username, @Param("question") String question);
+    //校验用户密保答案
+    int checkSecurityAnswer(@Param("username") String username, @Param("question") String question, 
+    		@Param("answer") String answer);
     
     //通过用户名查找用户
     User selectByUsername(String username);

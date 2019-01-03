@@ -38,21 +38,27 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public ServerResponse<String> register(User user) {
+		//校验用户名
 		ServerResponse<String> response = this.checkValid(user.getUsername(), Const.USERNAME);
 		if(!response.isSuccess()) {
 			return response;
 		}
 		
+		//校验email
 		response = this.checkValid(user.getEmail(), Const.EMAIL);
 		if(!response.isSuccess()) {
 			return response;
 		}
 		
-		user.setRole(Const.Role.ROLE_CUSTOMER);
+		//没有声明就当做普通用户处理
+		if(user.getRole() == null) {
+			user.setRole(Const.Role.ROLE_CUSTOMER);
+		}
+		
 		//MD5加密
 		user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
 		
-		int resultCount = userMapper.insert(user);
+		int resultCount = userMapper.insertSelective(user);
 		if(resultCount == 0) {
 			return ServerResponse.createByErrorMsg("注册失败");
 		}
@@ -107,13 +113,13 @@ public class UserServiceImpl implements IUserService {
 			return ServerResponse.createByErrorMsg("用户名不存在");	//校验成功说明用户名不存在
 		}		
 		
-		String res = userMapper.selectSecurityAnswer(username, question);
-		if(res.equals(answer)) {
+		int resCount = userMapper.checkSecurityAnswer(username, question, answer);
+		if(resCount > 0) {
 			//将用户名放入缓存中
 			String uuid = UUID.randomUUID().toString();
 			TokenCache.setKey(TokenCache.TOKENCACHE + username, uuid);
 			
-			return ServerResponse.createBySuccessMsg("答案校验成功");
+			return ServerResponse.createBySuccessMsgAndData("答案校验成功", TokenCache.TOKENCACHE + username);
 		}
 		
 		return ServerResponse.createByErrorMsg("答案校验失败");
@@ -138,7 +144,7 @@ public class UserServiceImpl implements IUserService {
 				return ServerResponse.createBySuccessMsg("密码修改成功");
 			}
 		}
-		return ServerResponse.createByErrorMsg("密码修改失败");
+		return ServerResponse.createByErrorMsg("token错误，请重新输入token");
 	}
 
 	@Override
@@ -177,6 +183,24 @@ public class UserServiceImpl implements IUserService {
 			return ServerResponse.createBySuccessMsgAndData("用户信息更新成功", retUser);
 		}
 		return ServerResponse.createByErrorMsg("用户信息更新失败");
+	}
+
+	@Override
+	public ServerResponse<User> getUserInfoById(int id) {
+		User user = userMapper.selectByPrimaryKey(id);
+		if(user == null) {
+			return ServerResponse.createByErrorMsg("用户不存在，请重新登陆");
+		}
+		user.setPassword("");
+		return ServerResponse.createBySuccessMsgAndData("用户信息获取成功", user);
+	}
+
+	@Override
+	public ServerResponse<String> checkAdminRole(User user) {
+		if(user != null && user.getRole() == Const.Role.ROLE_ADMIN) {
+			return ServerResponse.createBySuccessMsg("校验成功");
+		}
+		return ServerResponse.createByErrorMsg("用户不是管理员，没有操作权限");
 	}
 
 }

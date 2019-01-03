@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -66,7 +67,7 @@ public class UserController {
 	 * @param type
 	 * @return
 	 */
-	@RequestMapping(value="/validate.do", method=RequestMethod.POST)
+	@RequestMapping(value="/checkValid.do", method=RequestMethod.POST)
 	@ResponseBody
 	public ServerResponse<String> checkValid(String str, String type) {
 		return iUserService.checkValid(str, type);
@@ -149,6 +150,24 @@ public class UserController {
 		if(user == null)
 			return ServerResponse.createByErrorMsg("用户未登陆");
 		updateUser.setId(user.getId());
-		return iUserService.updateUserInfo(updateUser);
+		ServerResponse<User> response =  iUserService.updateUserInfo(updateUser);
+		if(response.isSuccess()) {
+			session.setAttribute(Const.CURRENT_USER, response.getData());	//update时session也要更新
+		}
+		return response;
+	}
+	
+	/**
+	 * 提示强制登陆，通过id获取用户信息
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value="/getUserInfoById.do", method=RequestMethod.POST)
+	@ResponseBody
+	public ServerResponse<User> getUserInfoById(HttpSession session) {
+		User user = (User)session.getAttribute(Const.CURRENT_USER);
+		if(user == null)
+			return ServerResponse.createByErrorCodeMsg(ResponseCode.NEED_LOGIN.getCode(), "用户需要强制登陆");
+		return iUserService.getUserInfoById(user.getId());
 	}
 }
