@@ -106,4 +106,9 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <select id="selectChildrenCategories" parameterType="int" resultMap="BaseResultMap">
+  	select <include refid="Base_Column_List" />
+  	from mmall_category where parent_id = #{parentId} 
+  </select>
 </mapper>
