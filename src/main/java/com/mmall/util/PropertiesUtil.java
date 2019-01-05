@@ -44,6 +44,12 @@ public class PropertiesUtil {
         }
         return value.trim();
     }
+    
+//    public static void main(String[] args) {
+//		System.out.println(PropertiesUtil.getProperty("ftp.server.ip"));
+//		System.out.println(PropertiesUtil.getProperty("ftp.user"));
+//
+//	}
 
 
 

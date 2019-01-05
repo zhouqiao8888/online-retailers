@@ -127,35 +127,52 @@ public class ProductServiceImpl implements IProductService {
 					ResponseCode.ILLEGAL_ARGUMENT.getDesc());
 		}
 		PageHelper.startPage(pageNum, pageSize);
-
-		//若产品名不为空，则先对产品名进行模糊查询，不将id写入sql语句判断条件中	
+		
 		if(StringUtils.isNotBlank(productName)) {
-			String productName_search = new StringBuilder("%" + productName + "%").toString();
-			List<Product> productList = productMapper.selectProductListByName(productName_search);
-			
-			if(CollectionUtils.isNotEmpty(productList)) {
-				List<ProductListVO> productListVOList = Lists.newArrayList();
-				for(Product product : productList) {
-					productListVOList.add(this.assembleProductListVO(product));
-				}
-				
-				PageInfo pageInfo = new PageInfo(productList);
-				pageInfo.setList(productListVOList);
-				return ServerResponse.createBySuccessMsgAndData("产品搜索成功", pageInfo);
-			}
+			productName = new StringBuilder("%" + productName + "%").toString();
 		}
 		
-		//若通过产品名没有搜索到，再根据id进行定向搜索
-		if(productId != null) {
-			Product product = productMapper.selectByPrimaryKey(productId);
-			if(product != null) {
-				PageInfo pageInfo = new PageInfo(Lists.newArrayList(product));
-				ProductListVO productListVO = this.assembleProductListVO(product);
-				pageInfo.setList(Lists.newArrayList(productListVO));
-				return ServerResponse.createBySuccessMsgAndData("产品搜索成功", pageInfo);
+		List<Product> productList = productMapper.selectProductListByNameOrId(productName, productId);
+		if(CollectionUtils.isNotEmpty(productList)) {
+			List<ProductListVO> productListVOList = Lists.newArrayList();
+			for(Product product : productList) {
+				productListVOList.add(this.assembleProductListVO(product));
 			}
-		}	
-		return ServerResponse.createByErrorMsg("没有符合搜索条件的商品");			
+			
+			PageInfo pageInfo = new PageInfo(productList);
+			pageInfo.setList(productListVOList);
+			return ServerResponse.createBySuccessMsgAndData("产品搜索成功", pageInfo);
+		}
+		return ServerResponse.createByErrorMsg("没有符合搜索条件的商品");	
+
+//		//若产品名不为空，则先对产品名进行模糊查询，不将id写入sql语句判断条件中	
+//		if(StringUtils.isNotBlank(productName)) {
+//			String productName_search = new StringBuilder("%" + productName + "%").toString();
+//			List<Product> productList = productMapper.selectProductListByName(productName_search);
+//			
+//			if(CollectionUtils.isNotEmpty(productList)) {
+//				List<ProductListVO> productListVOList = Lists.newArrayList();
+//				for(Product product : productList) {
+//					productListVOList.add(this.assembleProductListVO(product));
+//				}
+//				
+//				PageInfo pageInfo = new PageInfo(productList);
+//				pageInfo.setList(productListVOList);
+//				return ServerResponse.createBySuccessMsgAndData("产品搜索成功", pageInfo);
+//			}
+//		}
+//		
+//		//若通过产品名没有搜索到，再根据id进行定向搜索
+//		if(productId != null) {
+//			Product product = productMapper.selectByPrimaryKey(productId);
+//			if(product != null) {
+//				PageInfo pageInfo = new PageInfo(Lists.newArrayList(product));
+//				ProductListVO productListVO = this.assembleProductListVO(product);
+//				pageInfo.setList(Lists.newArrayList(productListVO));
+//				return ServerResponse.createBySuccessMsgAndData("产品搜索成功", pageInfo);
+//			}
+//		}	
+//		return ServerResponse.createByErrorMsg("没有符合搜索条件的商品");			
 	}
 	
 	public ProductListVO assembleProductListVO(Product product) {
