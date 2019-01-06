@@ -186,7 +186,7 @@ public class ProductServiceImpl implements IProductService {
 		productListVO.setStatus(product.getStatus());
 		productListVO.setSubtitle(product.getSubtitle());
 		
-		productListVO.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.happymmall.com/"));
+		productListVO.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
 		
 		return productListVO;
 	}
@@ -207,7 +207,7 @@ public class ProductServiceImpl implements IProductService {
 		productDetailVO.setStatus(product.getStatus());
 		
 		//设置图片服务器地址
-		productDetailVO.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.happymmall.com/"));
+		productDetailVO.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
 		
 		//校验parentCategoryId是否存在
 		Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());

@@ -11,5 +11,13 @@ public class Const {
 		int ROLE_CUSTOMER = 0;	//普通用户
 		int ROLE_ADMIN = 1;	//管理员
 	}
+	
+	public interface Cart {
+		int CHECKED = 1;
+		int UN_CHECKED = 0;
+		
+		String LIMIT_COUNT_SUCCESS = "limit count success";
+		String LIMIT_COUNT_FAIL = "limit count fail";
+	}
 
 }

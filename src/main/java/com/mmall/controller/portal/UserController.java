@@ -15,7 +15,7 @@ import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 
 @Controller
-@RequestMapping("/user/")
+@RequestMapping("/user")
 public class UserController {
 	
 	@Autowired

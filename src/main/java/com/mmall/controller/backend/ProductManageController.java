@@ -1,6 +1,5 @@
 package com.mmall.controller.backend;
 
-import java.io.FileInputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
