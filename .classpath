@@ -24,5 +24,19 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/alipay-sdk-java-3.3.0-source.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/alipay-sdk-java-3.3.0.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/alipay-trade-sdk-20161215-source.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/alipay-trade-sdk-20161215.jar" sourcepath="F:/mmall/src/main/webapp/WEB-INF/lib/alipay-trade-sdk-20161215-source.jar">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
