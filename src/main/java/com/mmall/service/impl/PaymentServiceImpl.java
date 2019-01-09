@@ -24,26 +24,33 @@ import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.utils.ZxingUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.OrderItemMapper;
 import com.mmall.dao.OrderMapper;
+import com.mmall.dao.PayInfoMapper;
 import com.mmall.pojo.Order;
 import com.mmall.pojo.OrderItem;
-import com.mmall.service.IOrderService;
+import com.mmall.pojo.PayInfo;
+import com.mmall.service.IPaymentService;
 import com.mmall.util.BigDecimalUtil;
+import com.mmall.util.DateTimeUtil;
 import com.mmall.util.FTPUtil;
 import com.mmall.util.PropertiesUtil;
 
-@Service("iOrderService")
-public class OrderServiceImpl implements IOrderService {
+@Service("iPaymentService")
+public class PaymentServiceImpl implements IPaymentService {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class); 
+	private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class); 
 	
 	@Autowired
 	private OrderMapper orderMapper;
 	
 	@Autowired
 	private OrderItemMapper orderItemMapper;
+	
+	@Autowired
+	private PayInfoMapper payInfoMapper;
 	
 	public ServerResponse<Map<String, String>> payOrder(Long orderNo, Integer userId, String path) {
 		Map<String, String> resMap = Maps.newHashMap();
@@ -135,7 +142,7 @@ public class OrderServiceImpl implements IOrderService {
                 }
 
                 // 将二维码图片保存到本地路径
-                String qrFilePath = String.format(path + "/r-%s.png", response.getOutTradeNo());
+                String qrFilePath = String.format(path + "/qr-%s.png", response.getOutTradeNo());
                 File qrFile = ZxingUtils.getQRCodeImge(response.getQrCode(), 256, qrFilePath);
                 logger.info("filePath:" + qrFilePath);
                 
@@ -146,13 +153,14 @@ public class OrderServiceImpl implements IOrderService {
 					if(!uploadFlag) {
 						return ServerResponse.createByErrorMsg("文件上传到ftp服务器失败");
 					}
+					qrFile.delete();
 				} catch (IOException e) {
 					logger.error("二维码图片上传失败", e.getMessage());
 				}
 				
                 String qrFileName = String.format("qr-%s.png", response.getOutTradeNo());
 				resMap.put("url", PropertiesUtil.getProperty("ftp.server.http.prefix") + qrFileName);
-                return ServerResponse.createBySuccessMsgAndData("订单支付成功", resMap);		
+                return ServerResponse.createBySuccessMsgAndData("订单预下单成功", resMap);		
 				
             case FAILED:
                 logger.error("支付宝预下单失败!!!");
@@ -166,6 +174,61 @@ public class OrderServiceImpl implements IOrderService {
                 logger.error("不支持的交易状态，交易返回异常!!!");
                 return ServerResponse.createByErrorMsg("不支持的交易状态，交易返回异常!!!");
         }
+	}
+	
+	public ServerResponse<String> aliPayCallback(Map<String, String> params) {
+		String tradeNo = params.get("trade_no");
+		String tradeStatus = params.get("trade_status");
+		String payment = params.get("gmt_payment");
+		Long orderNo = Long.parseLong(params.get("out_trade_no"));
+		
+		Order order = orderMapper.selectByOrderNo(orderNo);
+		if(order == null) {
+			logger.info("不是本商城的订单", orderNo);
+			return ServerResponse.createByErrorMsg("不是本商城的订单");
+		}
+		
+		//判断订单的状态码,判断订单是否已完成
+		if(order.getStatus() >= Const.OrderStatusEnum.PAY.getCode()) {
+			logger.info("重复的支付宝回调", order.getStatus());
+			return ServerResponse.createByErrorMsg("重复的支付宝回调");
+		}
+		
+		//若订单未完成，且回调状态显示已完成，更新订单状态
+		if(Const.AlipayCallbackStatus.TRADE_SUCCESS.equals(tradeStatus)) {
+			order.setStatus(Const.OrderStatusEnum.PAY.getCode());
+			order.setPaymentTime(DateTimeUtil.strToDate(payment));
+			int resCount = orderMapper.updateByPrimaryKeySelective(order);
+			if(resCount == 0) {
+				logger.info("订单更新失败");
+				return ServerResponse.createByErrorMsg("订单更新失败");
+			}
+		}
+		
+		//插入支付信息
+		PayInfo payInfo = new PayInfo();
+		payInfo.setOrderNo(orderNo);
+		payInfo.setUserId(order.getUserId());
+		payInfo.setPayPlatform(Const.PayPlatformEnum.ALIPAY.getCode());
+		payInfo.setPlatformNumber(tradeNo);
+		payInfo.setPlatformStatus(tradeStatus);
+		
+		int resCount = payInfoMapper.insert(payInfo);
+		if(resCount == 0) {
+			logger.info("支付信息持久化失败");
+			return ServerResponse.createByErrorMsg("支付信息持久化失败");
+		}
+		
+		logger.info("支付宝回调成功");
+		return ServerResponse.createBySuccessMsg("支付宝回调成功");
+	}
+	
+	public ServerResponse<Boolean> queryOrderStatus(Long orderNo, Integer userId) {
+		Order order = orderMapper.selectByUserIdAndOrderNo(userId, orderNo);
+		if(order == null || order.getStatus() < Const.OrderStatusEnum.PAY.getCode()) {
+			return ServerResponse.createBySuccessData(false);
+		}
+		return ServerResponse.createBySuccessData(true);
 	}
 	
 	 // 简单打印应答
