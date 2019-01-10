@@ -1,14 +1,10 @@
-package com.mmall.pojo;
+package com.mmall.vo;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
-public class OrderItem {
-    private Integer id;
-
-    private Integer userId;
-
-    private Long orderNo;
+public class OrderItemVO {
+	
+	private Long orderNo;
 
     private Integer productId;
 
@@ -22,46 +18,7 @@ public class OrderItem {
 
     private BigDecimal totalPrice;
 
-    private Date createTime;
-
-    private Date updateTime;
-    
-    
-	public OrderItem() {
-		
-	}
-
-	public OrderItem(Integer id, Integer userId, Long orderNo, Integer productId, String productName,
-			String productImage, BigDecimal currentUnitPrice, Integer quantity, BigDecimal totalPrice, Date createTime,
-			Date updateTime) {
-		this.id = id;
-		this.userId = userId;
-		this.orderNo = orderNo;
-		this.productId = productId;
-		this.productName = productName;
-		this.productImage = productImage;
-		this.currentUnitPrice = currentUnitPrice;
-		this.quantity = quantity;
-		this.totalPrice = totalPrice;
-		this.createTime = createTime;
-		this.updateTime = updateTime;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public Integer getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
+    private String createTime;
 
 	public Long getOrderNo() {
 		return orderNo;
@@ -119,25 +76,13 @@ public class OrderItem {
 		this.totalPrice = totalPrice;
 	}
 
-	public Date getCreateTime() {
+	public String getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(Date createTime) {
+	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
 	}
-
-	public Date getUpdateTime() {
-		return updateTime;
-	}
-
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
-
-	
-
     
     
-  
 }

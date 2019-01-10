@@ -20,7 +20,7 @@ public class Const {
 		String LIMIT_COUNT_FAIL = "limit count fail";
 	}
 	
-	public enum productStatusEnum {
+	public enum ProductStatusEnum {
 		
 		ONSAIL(1, "在售"),
 		UNDERCARRIAGE(2, "下架"),
@@ -29,7 +29,7 @@ public class Const {
 		private final int code;
 		private final String desc;
 		
-		private productStatusEnum(int code, String desc) {
+		private ProductStatusEnum(int code, String desc) {
 			this.code = code;
 			this.desc = desc;
 		}
@@ -41,12 +41,22 @@ public class Const {
 		public String getDesc() {
 			return desc;
 		}		
+		
+		public static String getStatusDesc(int code) {
+			for(ProductStatusEnum productStatusEnum : ProductStatusEnum.values()) {
+				if(productStatusEnum.getCode() == code) {
+					return productStatusEnum.getDesc();
+				}
+			}
+			
+			throw new RuntimeException("没有找到该状态码"); 
+		}
 	}
 	
 	
 	public enum OrderStatusEnum {
 		
-		CHECKED(0, "已取消"),
+		CANCELL(0, "已取消"),
 		NO_PAY(10, "未支付"),
 		PAY(20, "已支付"),
 		SHIPPED(30, "已发货"),
@@ -68,6 +78,15 @@ public class Const {
 
 		public String getDesc() {
 			return desc;
+		}
+		
+		public static String getStatusDesc(int code) {
+			for(OrderStatusEnum orderStatusEnum : OrderStatusEnum.values()) {
+				if(orderStatusEnum.getCode() == code) {
+					return orderStatusEnum.getDesc();
+				}
+			}
+			throw new RuntimeException("没有找到该状态码"); 
 		}
 	}
 	
@@ -97,6 +116,36 @@ public class Const {
 
 		public String getDesc() {
 			return desc;
+		}
+	}
+	
+	public enum PaymentTypeEnum {
+		
+		ONLINE_PAY(1, "在线支付");
+		
+		private final int code;
+		private final String desc;
+		
+		private PaymentTypeEnum(int code, String desc) {
+			this.code = code;
+			this.desc = desc;
+		}
+
+		public int getCode() {
+			return code;
+		}
+
+		public String getDesc() {
+			return desc;
+		}
+		
+		public static String getStatusDesc(int code) {
+			for(PaymentTypeEnum paymentTypeEnum : PaymentTypeEnum.values()) {
+				if(paymentTypeEnum.getCode() == code) {
+					return paymentTypeEnum.getDesc();
+				}
+			}
+			throw new RuntimeException("没有找到该状态码"); 
 		}
 	}
 

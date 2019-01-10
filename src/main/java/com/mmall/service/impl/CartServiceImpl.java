@@ -142,6 +142,11 @@ public class CartServiceImpl implements ICartService {
 			
 			Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
 			if(product != null) {
+				//如果产品状态不是在售，不加入购物车
+				if(Const.ProductStatusEnum.ONSAIL.getCode() != product.getStatus()) {
+					continue;
+				}
+				
 				cartProductVO.setProductName(product.getName());
 				cartProductVO.setProductSubtitle(product.getSubtitle());
 				cartProductVO.setProductMainImage(product.getMainImage());

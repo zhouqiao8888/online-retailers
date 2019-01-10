@@ -61,6 +61,10 @@ public class PaymentServiceImpl implements IPaymentService {
 			return ServerResponse.createByErrorMsg("未找到当前用户的订单");
 		}		
 		
+		if(order.getStatus() != Const.OrderStatusEnum.NO_PAY.getCode()) {
+			return ServerResponse.createByErrorMsg("订单已支付或者已取消");
+		}
+		
 		 // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
         // 需保证商户系统端不能重复，建议通过数据库sequence生成，
         String outTradeNo = order.getOrderNo().toString();
