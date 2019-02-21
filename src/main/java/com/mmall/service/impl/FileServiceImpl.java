@@ -1,4 +1,4 @@
-package com.mmall.service;
+package com.mmall.service.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Lists;
+import com.mmall.service.IFileService;
 import com.mmall.util.FTPUtil;
 
 @Service("iFileService")

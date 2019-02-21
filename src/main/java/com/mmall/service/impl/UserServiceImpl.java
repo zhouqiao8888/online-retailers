@@ -115,11 +115,12 @@ public class UserServiceImpl implements IUserService {
 		
 		int resCount = userMapper.checkSecurityAnswer(username, question, answer);
 		if(resCount > 0) {
-			//将用户名放入缓存中
+			//将用户名放入缓存中,令牌实际上是一个uuid
 			String uuid = UUID.randomUUID().toString();
-			TokenCache.setKey(TokenCache.TOKENCACHE + username, uuid);
+			String key = TokenCache.TOKENCACHE + username;
+			TokenCache.setKey(key, uuid);
 			
-			return ServerResponse.createBySuccessMsgAndData("答案校验成功", TokenCache.TOKENCACHE + username);
+			return ServerResponse.createBySuccessMsgAndData("答案校验成功", uuid);
 		}
 		
 		return ServerResponse.createByErrorMsg("答案校验失败");
@@ -136,8 +137,9 @@ public class UserServiceImpl implements IUserService {
 			return ServerResponse.createByErrorMsg("用户名不存在");	//校验成功说明用户名不存在
 		}	
 		
-		String token = TokenCache.TOKENCACHE + username;
-		if(StringUtils.equals(token, userToken)) {
+		String key = TokenCache.TOKENCACHE + username;
+		String tokenValue = TokenCache.getValue(key);
+		if(StringUtils.equals(tokenValue, userToken)) {
 			String md5Password = MD5Util.MD5EncodeUtf8(newPassword);
 			int resCount = userMapper.updatePasswordByUsername(username, md5Password);
 			if(resCount > 0) {

@@ -12,6 +12,10 @@
       <param-name>forceEncoding</param-name>
       <param-value>true</param-value>
     </init-param>
+    <init-param>
+	  <param-name>development</param-name>
+	  <param-value>true</param-value>
+  	</init-param>
   </filter>
   <filter-mapping>
     <filter-name>characterEncodingFilter</filter-name>
@@ -39,8 +43,5 @@
     <url-pattern>*.do</url-pattern>
   </servlet-mapping>
   
-  <init-param>
-	<param-name>development</param-name>
-	<param-value>true</param-value>
-  </init-param>
+  
 </web-app>
